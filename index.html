@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convite Especial</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        /* Paleta: Rosa Choque (#FF69B4), Dourado (#FFD700), Lavanda Blush (#FFF0F5) */
+
+        /* ---------------------------------------------------- */
+        /* 1. Estilos Globais e Reset Simples */
+        /* ---------------------------------------------------- */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #FFF0F5; /* Fundo Rosa muito claro, igual ao agradecimento */
+            color: #333;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* ---------------------------------------------------- */
+        /* 2. Cabeçalho e Rodapé */
+        /* ---------------------------------------------------- */
+        .cabecalho {
+            background-color: #FF69B4; /* Rosa Choque */
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .cabecalho h1 {
+            margin-bottom: 5px;
+        }
+
+        .rodape {
+            text-align: center;
+            padding: 10px 0;
+            margin-top: 30px;
+            color: #777;
+            font-size: 0.8em;
+            background-color: #fce4ec; 
+        }
+
+        /* ---------------------------------------------------- */
+        /* 3. Formulário e Campos */
+        /* ---------------------------------------------------- */
+        .container {
+            max-width: 600px;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .container h2 {
+            color: #FF69B4; 
+            border-bottom: 2px solid #FF69B4; 
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 1px 1px 0 #FFD700; 
+        }
+
+        .campo {
+            margin-bottom: 15px;
+        }
+
+        .campo label {
+            display: block; 
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #3e4451;
+        }
+
+        .campo input[type="text"], .campo input[type="tel"], .campo textarea {
+            width: 95%; 
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 1em;
+        }
+
+        /* ---------------------------------------------------- */
+        /* 4. Botões */
+        /* ---------------------------------------------------- */
+        /* Botão Principal de Envio (Dourado/Amarelo) */
+        .botao-enviar {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #FFD700; 
+            color: #333; 
+            border: none;
+            border-radius: 4px;
+            font-size: 1.1em;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+        }
+
+        .botao-enviar:hover:not(:disabled) {
+            background-color: #ffc400; 
+            transform: translateY(-2px);
+        }
+        
+        .botao-enviar:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        /* Botão Secundário (Adicionar Acompanhante) */
+        .botao-secundario {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 20px;
+            background-color: #f8c291; 
+            color: #333;
+            border: 1px solid #e7a371;
+            border-radius: 4px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .botao-secundario:hover {
+            background-color: #e7a371;
+        }
+
+        /* Botão de Remover Acompanhante */
+        .acompanhante-box {
+            border: 1px dashed #FF69B4;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            position: relative;
+        }
+
+        .remover-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #FF69B4;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            line-height: 18px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        
+        /* ---------------------------------------------------- */
+        /* 5. Efeito de Digitação */
+        /* ---------------------------------------------------- */
+        #texto-digitacao {
+            display: inline-block;
+            color: #FFD700; 
+            font-size: 1.2em;
+            font-weight: bold;
+            border-right: 2px solid #FFD700; 
+            animation: piscar 0.7s step-end infinite;
+            padding-right: 5px; 
+            min-height: 20px;
+        }
+
+        @keyframes piscar {
+            from, to { border-color: transparent }
+            50% { border-color: #FFD700; } 
+        }
+
+        /* ---------------------------------------------------- */
+        /* 6. Estilos da Mensagem de Agradecimento */
+        /* ---------------------------------------------------- */
+
+        #agradecimento-view {
+            display: none; 
+            background-color: #FFF0F5; 
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: 20px;
+            /* Garante que o agradecimento cobre toda a tela */
+            position: fixed; 
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 100; /* Garante que fique acima de tudo */
+        }
+
+        .card-agradecimento {
+            background-color: white;
+            padding: 40px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            border: 3px solid #FF69B4; 
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .titulo-festa {
+            color: #FF69B4; 
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 0 #FFD700; 
+        }
+
+        .mensagem-principal {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #4CAF50; 
+            margin-bottom: 20px;
+        }
+
+        /* ---------------------------------------------------- */
+        /* 7. Responsividade (Garantindo ajuste a celulares) */
+        /* ---------------------------------------------------- */
+        @media (max-width: 650px) {
+            .container, .card-agradecimento {
+                margin: 10px;
+                padding: 15px;
+            }
+            .cabecalho h1, .titulo-festa {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="form-view">
+        <header class="cabecalho">
+            <h1>Você Está Convidado(a)!</h1>
+            <div class="wrap" id="texto-digitacao"></div>
+        </header>
+
+        <main class="container">
+            <form id="formulario-convite" action="https://formspree.io/f/mkgqkpna" method="POST">
+                <h2>Confirmação de Presença</h2>
+
+                <div class="campo">
+                    <label for="nome">Nome Completo:</label>
+                    <input type="text" id="nome" name="Nome Completo" placeholder="Seu nome aqui" required>
+                </div>
+
+                <div class="campo">
+                    <label for="telefone">Telefone (WhatsApp):</label>
+                    <input type="tel" id="telefone" name="Telefone" placeholder="(XX) XXXXX-XXXX" required>
+                </div>
+                
+                <div id="acompanhantes-container">
+                    </div>
+
+                <button type="button" id="adicionar-acompanhante" class="botao-secundario">
+                    + Adicionar Acompanhante
+                </button>
+
+                <div class="campo">
+                    <label for="mensagem">Mensagem para os Anfitriões (Opcional):</label>
+                    <textarea id="mensagem" name="Mensagem" rows="4" placeholder="Deixe uma mensagem carinhosa..."></textarea>
+                </div>
+
+                <button type="submit" class="botao-enviar">Enviar Confirmação</button>
+            </form>
+        </main>
+
+        <footer class="rodape">
+            <p>&copy; 2025 Convite Especial. Feito com carinho.</p>
+        </footer>
+    </div>
+
+    <div id="agradecimento-view">
+        <div class="card-agradecimento">
+            <h1 class="titulo-festa">CONFIRMAÇÃO ENVIADA!</h1>
+            <p class="mensagem-principal">🎉 Parabéns, a sua presença está confirmada na festa da Maria Isabel de 80 anos! 🎉</p>
+            <p class="mensagem-detalhe">Recebemos sua resposta com sucesso e estamos muito felizes por tê-lo(a) conosco.</p>
+        </div>
+    </div>
+
+    <script>
+        // LÓGICA DO EFEITO DE DIGITAÇÃO
+        const frases = [
+            "Confirme a sua presença ao aniversário.",
+            "Esperamos por você!",
+            "Não perca a nossa festa, confirme já!",
+            "Sua presença tornará o dia ainda mais especial!"
+
+        ];
+        const VELOCIDADE_DIGITACAO = 150; 
+        const VELOCIDADE_APAGAMENTO = 100; 
+        const TEMPO_ESPERA = 2000;       
+        const elementoTexto = document.getElementById('texto-digitacao');
+        let indiceFrase = 0; 
+        let indiceCaractere = 0; 
+        let isApagando = false; 
+
+        function maquinaDeEscrever() {
+            const fraseAtual = frases[indiceFrase];
+
+            if (isApagando) {
+                elementoTexto.textContent = fraseAtual.substring(0, indiceCaractere - 1);
+                indiceCaractere--;
+                if (indiceCaractere === 0) {
+                    isApagando = false; 
+                    indiceFrase = (indiceFrase + 1) % frases.length; 
+                    setTimeout(maquinaDeEscrever, 500); 
+                    return;
+                }
+            } else {
+                elementoTexto.textContent = fraseAtual.substring(0, indiceCaractere + 1);
+                indiceCaractere++;
+                if (indiceCaractere === fraseAtual.length) {
+                    isApagando = true; 
+                    setTimeout(maquinaDeEscrever, TEMPO_ESPERA); 
+                    return;
+                }
+            }
+            const velocidade = isApagando ? VELOCIDADE_APAGAMENTO : VELOCIDADE_DIGITACAO;
+            setTimeout(maquinaDeEscrever, velocidade);
+        }
+        
+        // LÓGICA DE ACOMPANHANTES DINÂMICOS
+        const btnAdicionarAcompanhante = document.getElementById('adicionar-acompanhante');
+        const acompanhantesContainer = document.getElementById('acompanhantes-container');
+        let contadorAcompanhantes = 1;
+
+        function criarCampoAcompanhante() {
+            const div = document.createElement('div');
+            div.classList.add('campo', 'acompanhante-box');
+            div.innerHTML = `
+                <label for="acompanhante${contadorAcompanhantes}">Nome do Acompanhante ${contadorAcompanhantes}:</label>
+                <input type="text" 
+                       id="acompanhante${contadorAcompanhantes}" 
+                       name="Acompanhante ${contadorAcompanhantes}" 
+                       placeholder="Nome do(a) acompanhante" required>
+                <button type="button" class="remover-btn" title="Remover Acompanhante">x</button>
+            `;
+            
+            div.querySelector('.remover-btn').addEventListener('click', () => {
+                div.remove();
+            });
+
+            return div;
+        }
+
+        btnAdicionarAcompanhante.addEventListener('click', () => {
+            const novoCampo = criarCampoAcompanhante();
+            acompanhantesContainer.appendChild(novoCampo);
+            contadorAcompanhantes++;
+        });
+
+
+        // LÓGICA DE ENVIO DO FORMULÁRIO E TRANSIÇÃO
+        const formulario = document.getElementById('formulario-convite');
+        const viewForm = document.getElementById('form-view');
+        const viewAgradecimento = document.getElementById('agradecimento-view');
+        
+        formulario.addEventListener('submit', async (e) => {
+            e.preventDefault(); 
+
+            const statusBotao = document.querySelector('.botao-enviar');
+            statusBotao.textContent = 'Enviando...';
+            statusBotao.disabled = true;
+
+            const dados = new FormData(formulario);
+            
+            try {
+                const resposta = await fetch(formulario.action, {
+                    method: 'POST',
+                    body: dados,
+                    headers: {
+                        'Accept': 'application/json' 
+                    }
+                });
+
+                if (resposta.ok) {
+                    // Transição: Oculta o formulário e mostra o agradecimento
+                    viewForm.style.display = 'none';
+                    viewAgradecimento.style.display = 'flex'; 
+
+                    // Inicia a animação de confetes
+                    iniciarConfetes();
+
+                    window.scrollTo(0, 0); 
+                } else {
+                    const data = await resposta.json();
+                    alert("Houve um problema ao enviar a sua confirmação. Tente novamente ou verifique a hash do Formspree.");
+                }
+            } catch (erro) {
+                console.error('Erro de rede:', erro);
+                alert("Não foi possível conectar. Verifique sua ligação ou tente mais tarde.");
+            } finally {
+                statusBotao.textContent = 'Enviar Confirmação';
+                statusBotao.disabled = false;
+            }
+        });
+
+        // LÓGICA DOS CONFETES
+        function iniciarConfetes() {
+            if (typeof confetti !== 'undefined') {
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+
+                setTimeout(() => {
+                    confetti({ particleCount: 50, angle: 60, spread: 55, origin: { x: 0 } });
+                }, 300); 
+
+                setTimeout(() => {
+                    confetti({ particleCount: 50, angle: 120, spread: 55, origin: { x: 1 } });
+                }, 500); 
+            }
+        }
+
+        // Inicia o efeito de digitação no carregamento
+        document.addEventListener('DOMContentLoaded', () => {
+            maquinaDeEscrever();
+        });
+    </script> 
+</body>
+</html>
